@@ -4,7 +4,7 @@ import pygame as pg
 
 class DisplaySettings:
     display_size = 800, 800
-    bg_color = "#ffffff"
+    bg_color = "#C336C9"
   
 
 class SimulationState:
@@ -26,7 +26,8 @@ def main():
             if event.type == pg.QUIT:
                 is_running = False
                 return
-
+    
+        pg.display.update()
 
 if __name__ == "__main__":
     main()
