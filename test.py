@@ -3,8 +3,9 @@ import pygame as pg
 
 
 class DisplaySettings:
+    display_size = 800, 800
     bg_color = "#ffffff"
-
+  
 
 class SimulationState:
     is_running = False
@@ -13,9 +14,10 @@ class SimulationState:
 
 def main():
     pg.init()
-    screen = pg.display.set_mode((800, 800))
+    screen = pg.display.set_mode(DisplaySettings.display_size)
     clock = pg.time.Clock()
     SimulationState.is_running = True
+
 
     while SimulationState.is_running:
         screen.fill(DisplaySettings.bg_color)
