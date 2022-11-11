@@ -7,24 +7,30 @@ class DisplaySettings:
     bg_color = "#C336C9"
   
 
-class SimulationState:
+class ControlState:
     is_running = False
     is_paused = False
+    framerate = 20
+    
+class SimState:
+    particle_positions = None
+    particle_velocities = None
 
 
 def main():
     pg.init()
     screen = pg.display.set_mode(DisplaySettings.display_size)
     clock = pg.time.Clock()
-    SimulationState.is_running = True
+    ControlState.is_running = True
 
 
-    while SimulationState.is_running:
+    while ControlState.is_running:
+        clock.tick(ControlState.framerate)
         screen.fill(DisplaySettings.bg_color)
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                is_running = False
+                ControlState.is_running = False
                 return
     
         pg.display.update()
