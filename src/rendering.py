@@ -1,4 +1,4 @@
-"""Functionality related to rendering the finished simulation"""
+"""Functionality related to rendering the finished simulation."""
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from state import State
 
 
-@dataclass
+@dataclass(slots=True)
 class RenderState:
     display_size = 800, 800
     bg_color = "#C336C9"
