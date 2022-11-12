@@ -1,47 +1,53 @@
+"""Functionality related to executing the simulation and generating a history."""
 import numpy as np
+from dataclasses import dataclass
+from state import State
 
 
-class Constants:
+@dataclass(slots=True)
+class SimConstants:
+    time_step = 0.01
     n_individuals = 100
     individual_radius = 1
-    time_step = 0.01
     collision_rebound = 1
     mass = 10
-    max_x, max_y = 50, 50
+    max_pos = np.array([50, 50])
 
 
-def run_simulation():
-    np.random.seed(69420)
+def run_simulation(n_time_steps: int, seed: int = None) -> list[State]:
+    np.random.seed(seed)
 
-    zero_vectors = np.zeros(shape=(Constants.n_individuals, 2))
-    positions = np.random.rand(Constants.n_individuals, 2)
-    positions[:, 0] *= Constants.max_y
-    positions[:, 1] *= Constants.max_x
-    velocities = np.zeros(shape=(Constants.n_individuals, 2)) 
-    
-    history = [(positions, velocities)]
+    zero_vectors = np.zeros(shape=(SimConstants.n_individuals, 2))
+    positions = np.random.rand(SimConstants.n_individuals, 2)
+    positions *= SimConstants.max_pos
+    velocities = np.zeros(shape=(SimConstants.n_individuals, 2))
 
-    for t in range(3):
-        old_positions, old_velocities = history[-1]
-        positions = old_positions + old_velocities*Constants.time_step
+    state = State(positions=positions, velocities=velocities)
+    history = [state]
+
+    for time_step in range(n_time_steps):
+        positions = state.positions + state.velocities*SimConstants.time_step
         forces = zero_vectors.copy()
 
-        for individual in range(Constants.n_individuals):
+        for individual in range(SimConstants.n_individuals):
             displacements = positions - positions[individual, :]
-            distances = np.linalg.norm(displacements, axis=1) 
-            collisions = (distances < Constants.individual_radius) & (distances > 0)
-            forces[collisions] += Constants.collision_rebound/(displacements[collisions]**2)
+            distances = np.linalg.norm(displacements, axis=1)
+            collisions = (distances < SimConstants.individual_radius) & (
+                distances > 0)
+            forces[collisions] += SimConstants.collision_rebound / \
+                (displacements[collisions]**2)
 
-        velocities = old_velocities + forces*Constants.time_step / Constants.mass
-        history.append((positions, velocities))
-        
+        velocities = state.velocities + forces * \
+            SimConstants.time_step / SimConstants.mass
+        state = State(positions=positions, velocities=velocities)
+        history.append(state)
 
-    print(history[-1])
-
+    return history
 
 
 def main():
     run_simulation()
+
 
 if __name__ == "__main__":
     main()
