@@ -15,6 +15,15 @@ class SimConstants:
 
 
 def run_simulation(n_time_steps: int, seed: int = None) -> list[State]:
+    """Run the simulation step by step and generate a history.
+
+    Args:
+        n_time_steps: Number of time steps to run the simulation.
+        seed: Gives the random number generator a reproducable result.
+
+    Returns:
+        The state for each time step.
+    """
     np.random.seed(seed)
 
     zero_vectors = np.zeros(shape=(SimConstants.n_individuals, 2))
@@ -43,11 +52,3 @@ def run_simulation(n_time_steps: int, seed: int = None) -> list[State]:
         history.append(state)
 
     return history
-
-
-def main():
-    run_simulation()
-
-
-if __name__ == "__main__":
-    main()
