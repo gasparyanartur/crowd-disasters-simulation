@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
 import pygame as pg
+import numpy as np
 
 if TYPE_CHECKING:
     from state import State
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
 class RenderState:
     display_size: tuple[int, int] = 800, 800
     bg_color: str = "#C336C9"
+    individual_color: str = "#000000"
     is_running: bool = False
     is_paused: bool = False
     framerate: int = 20
@@ -33,7 +35,17 @@ def get_time_step(i_frame: int, frame_rate: int, time_inc: float) -> int:
         frame_rate: Number of frames rendered per second.
         time_inc: The time passed between time steps.
     """
-    return (i_frame / frame_rate) // time_inc
+    return int((i_frame / frame_rate) // time_inc)
+
+
+def _render_state(screen: pg.surface.Surface, state: State, render_state: RenderState, sim_constants: SimConstants) -> None:
+    pos_to_coord = np.array(render_state.display_size) / sim_constants.max_pos
+    radius = sim_constants.individual_radius*pos_to_coord[0]    # TODO: Make this work for rectangular
+
+    for i in range(sim_constants.n_individuals):
+        coord = state.positions[i, :] * pos_to_coord
+        pg.draw.circle(screen, color=render_state.individual_color, center=coord, radius=radius)
+    
 
 
 def render_simulation(history: list[State], render_state: RenderState, sim_constants: SimConstants) -> None:
@@ -41,7 +53,7 @@ def render_simulation(history: list[State], render_state: RenderState, sim_const
 
     Args:
         history: The states of each time step.
-        render_state. The settings of the rendering.
+        rendering_state. The settings of the rendering.
         sim_constants: The settings of the simulation.
     """
     i_frame = 0
@@ -63,9 +75,10 @@ def render_simulation(history: list[State], render_state: RenderState, sim_const
             render_state.is_running = False
             continue
 
-        # TODO: Render
         screen.fill(render_state.bg_color)
+        print("Time step", time_step)
+        _render_state(screen, history[time_step], render_state, sim_constants)
         pg.display.update()
 
-        time_step += 1
+        i_frame += 1
         clock.tick(render_state.framerate)
