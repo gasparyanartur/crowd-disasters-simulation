@@ -5,6 +5,6 @@ import numpy as np
 
 @dataclass(init=True, slots=True)
 class State:
-    positions = np.ndarray
-    velocities = np.ndarray
+    positions: np.ndarray
+    velocities: np.ndarray
 
