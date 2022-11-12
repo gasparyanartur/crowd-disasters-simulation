@@ -1,7 +1,7 @@
 """Functionality related to executing the simulation and generating a history."""
 import numpy as np
 from dataclasses import dataclass
-from state import State
+from .state import State
 
 
 @dataclass(init=True, slots=True)
@@ -37,7 +37,7 @@ def run_simulation(sim_constants: SimConstants, seed: int = None) -> list[State]
     history = [state]
 
     for time_step in range(sim_constants.n_time_steps):
-        positions = state.positions + state.velocities*sim_constants.time_step
+        positions = state.positions + state.velocities*sim_constants.time_inc
         forces = zero_vectors.copy()
 
         # TODO: Fix logic
@@ -50,7 +50,7 @@ def run_simulation(sim_constants: SimConstants, seed: int = None) -> list[State]
                 (displacements[collisions]**2)
 
         velocities = state.velocities + forces * \
-            sim_constants.time_step / sim_constants.mass
+            sim_constants.time_inc / sim_constants.mass
         state = State(positions=positions, velocities=velocities)
         history.append(state)
 

@@ -1,5 +1,4 @@
-import simulation
-import rendering
+from src import simulation, rendering
 
 
 def main():
@@ -12,7 +11,7 @@ def main():
 
 
     history = simulation.run_simulation(sim_constants=sim_constants, seed=random_seed)
-    rendering.render_simulation(history=history, render_state=render_state, sim_constants=sim_constants.time_inc)
+    rendering.render_simulation(history=history, render_state=render_state, sim_constants=sim_constants)
 
 
 if __name__ == "__main__":
