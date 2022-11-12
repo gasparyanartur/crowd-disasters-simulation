@@ -9,7 +9,7 @@ class SimConstants:
     time_inc: float = 0.01
     n_individuals: int = 100
     individual_radius: float = 1
-    collision_rebound: float = 1
+    collision_rebound: float = 10
     mass: float = 10
     max_pos: tuple[int, int] = 50, 50
     n_time_steps: int = 10
@@ -42,15 +42,32 @@ def run_simulation(sim_constants: SimConstants, seed: int = None) -> list[State]
 
         # TODO: Fix logic
         for individual in range(sim_constants.n_individuals):
-            displacements = positions - positions[individual, :]
-            distances = np.linalg.norm(displacements, axis=1)
-            collisions = (distances < sim_constants.individual_radius) & (
-                distances > 0)
-            forces[collisions] += sim_constants.collision_rebound / \
-                (displacements[collisions]**2)
 
-        velocities = state.velocities + forces * \
-            sim_constants.time_inc / sim_constants.mass
+            # Compute the displacement between this individual and all others, |p_i - p_j|.
+            displacements = positions - positions[individual, :]
+
+            # The distance to each individual is the norm of each displacement |p_i - p_j|.
+            distances = np.linalg.norm(displacements, axis=1)
+
+            # Find all the collisions that occur, which is defined as the instances
+            # where the distances are within 2 radiuses, since this means that each
+            # perimeter is just barely touching.
+            # Exclude the instances where the distance is 0, since this means that
+            # the individual is being compared to itself (or something has gone terribly wrong):
+            collisions = (
+                (distances < 2*sim_constants.individual_radius) &
+                (distances > 0)
+            )
+
+            forces[collisions] += (
+                sim_constants.collision_rebound / displacements[collisions]
+            )
+
+        velocities = (
+            state.velocities +
+            forces * (sim_constants.time_inc / sim_constants.mass)
+        )
+
         state = State(positions=positions, velocities=velocities)
         history.append(state)
 
