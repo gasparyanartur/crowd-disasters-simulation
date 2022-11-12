@@ -3,8 +3,8 @@ import numpy as np
 
 
 
-@dataclass
-class State(init=True, slots=True):
+@dataclass(init=True, slots=True)
+class State:
     positions = np.ndarray
     velocities = np.ndarray
 
