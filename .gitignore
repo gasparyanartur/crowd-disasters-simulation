@@ -2,3 +2,4 @@ Pipfile.lock
 .DS_STORE
 .vscode
 __pycache__
+.ipynb_checkpoints
