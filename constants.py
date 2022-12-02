@@ -40,6 +40,7 @@ class SimConstants:
     n_individuals = 300
     individual_radius = 0.5
     collision_rebound = 100
+    wall_rebound = 1000
     mass = 10
     max_pos = 50, 50
     simulation_time = 10
@@ -48,7 +49,7 @@ class SimConstants:
     social_factor = 50
     v_max = 5
     individual_force = 10
-    lethal_pressure = 10000
+    lethal_pressure = 15000
     distance_wall = 4
     r_0 = 1 # the constant for calculate the obstacle force
     n_time_steps = int(simulation_time/time_inc)
