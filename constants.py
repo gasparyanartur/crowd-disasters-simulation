@@ -37,7 +37,7 @@ class PersonState:
     
 class SimConstants:
     time_inc = 0.01
-    n_individuals = 300
+    n_individuals = 1000
     individual_radius = 0.5
     collision_rebound = 100
     wall_rebound = 1000
