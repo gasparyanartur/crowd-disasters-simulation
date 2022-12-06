@@ -8,10 +8,10 @@ class Environment:
     # thus the total shape becomes (n_corners, n_dim)
     # example: rectangular obstacles -> shape=(4, 2)
     walls: list[np.ndarray] = [
-        np.array([[0, 0], [50, 0], [50, 2], [0, 2]]),
-        np.array([[48, 2], [50, 2], [50, 48], [48, 48]]),
-        np.array([[0, 48], [50, 48], [50, 50], [0, 50]]),
-        np.array([[0, 2], [2, 2], [2, 48], [0, 48]]),
+        np.array([[0, 0], [50, 0], [50, 2], [0, 2]]),  # bot
+        np.array([[48, 2], [50, 2], [50, 48], [48, 48]]),  # right
+        np.array([[0, 48], [50, 48], [50, 50], [0, 50]]),  # top
+        np.array([[0, 2], [2, 2], [2, 48], [0, 48]]),  # left
         
     ]
         
