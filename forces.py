@@ -1,11 +1,11 @@
-import numpy
+import numpy as np
 
 from sim_state import SimState
 from constants import Environment as env
 from constants import PersonState as pstate
 from constants import SimConstants as sconst
 
-def get_forces(state: State)  -> tuple[np.ndarray, np.ndarray]:
+def get_forces(state: SimState)  -> tuple[np.ndarray, np.ndarray]:
     soc_forces = np.zeros(shape=sconst.shape_2d)
     env_forces = np.zeros(shape=sconst.shape_2d)
     active = state.person_states == pstate.living
@@ -15,27 +15,80 @@ def get_forces(state: State)  -> tuple[np.ndarray, np.ndarray]:
     
     disps_exit =  exit_center - state.positions
     desired_dirs_exit = disps_exit / np.linalg.norm(disps_exit, axis=1)
+
+    disps_wall = get_displacement_to_closest_wall(state)
+    dist_wall = np.norm(disps_wall, axis=1)
+    dirs_wall = disps_wall / dist_wall
+
+    radius = sconst.individual_radius
+    diameter = 2 * radius
+
+    A = 1
+    B = 1
+    k1 = 100
+    k2 = 100
     
-    for individual in range(sconst.n_individuals): 
-        if not active[individual]:
+    for i in range(sconst.n_individuals): 
+        if not active[i]:
             continue
         
-        velocity = state.velocities[individual]    
-        desired_velocity = desired_dirs_exit[individual]*sconst.v_max
+        velocity = state.velocities[i]
+        position = state.positions[i]
+        
+        # Desire force
+        desired_velocity = desired_dirs_exit[i]*sconst.v_max
         desired_force = sconst.individual_force * (desired_velocity - velocity)
-            
         
+        # Interaction force
+        disps_ppl = position - state.positions
+        vel_diff_ppl = state.velocities - velocity
+        dist_ppl = np.norm(disps_ppl, axis=1)
+        dirs_ppl = disps_ppl / dist_ppl 
+        tang_ppl = np.array([-dirs_ppl[:, 1], dirs_ppl[:, 0]])
+        closeness_ppl = diameter - dist_ppl
+        tang_vel_ppl = vel_diff_ppl * tang_ppl
+
+        i_collision_ppl = closeness_ppl <= 0
         
+        interaction_force_soc = A * np.exp(closeness_ppl / B) * dirs_ppl
+        interaction_force_env = i_collision_ppl * (k1 * dirs_ppl + k2 * tang_ppl * tang_vel_ppl)
+
+        # Obstacle force
+        # TODO: Obstacle force
+        # dists_wall
+        ...
 
     
-    
-    
-   
-    
-    
-    
-    
     return env_forces, soc_forces
+
+
+def get_displacement_to_closest_wall(state: SimState):
+    x = state.positions[:, 0]
+    y = state.positions[:, 1]
+
+    w_bot_surf_y = env.walls[0][2, 1]
+    w_right_surf_x = env.walls[1][0, 0]
+    w_top_surf_y = env.walls[2][0, 1]
+    w_left_surf_x = env.walls[3][1, 0]
+    
+    min_x = w_left_surf_x + sconst.distance_wall
+    max_x = w_right_surf_x - sconst.distance_wall  
+    min_y = w_bot_surf_y + sconst.distance_wall 
+    max_y = w_top_surf_y - sconst.distance_wall 
+
+    i_close_left = x < min_x
+    i_close_right = x > max_x
+    i_close_bot = y < min_y
+    i_close_top = y > max_y
+    
+    disp = np.zeros((sconst.n_individuals, 2))
+
+    disp[i_close_left, 0] = x - w_left_surf_x
+    disp[i_close_right, 0] = x - w_right_surf_x
+    disp[i_close_top, 1] = y - w_top_surf_y
+    disp[i_close_bot, 1] = y + w_bot_surf_y
+
+    return disp
 
 
 def get_environmental_force(individual, state) -> float:
