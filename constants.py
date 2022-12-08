@@ -3,14 +3,19 @@ import numpy as np
 
 class Environment:    
     bot_outer = 0
-    top_outer = 50
+    top_outer = 80
     left_outer = 0
-    right_outer = 50
+    right_outer = 80
     
-    bot_inner = bot_outer + 5
-    top_inner = top_outer - 5
-    left_inner = left_outer + 5 
-    right_inner = right_outer - 8
+    thickness_top = 25
+    thickness_bot = 25
+    thickness_left = 10
+    thickness_right = 10
+    
+    bot_inner = bot_outer + thickness_bot
+    top_inner = top_outer - thickness_top
+    left_inner = left_outer + thickness_left
+    right_inner = right_outer - thickness_right
     
     
     # A rectangle is defined as (botleft, botright, topright, topleft)
@@ -35,8 +40,10 @@ class Environment:
         
     # Exits are defined as rectangular,
     # and thus behave in the same way as walls
+    exit_center = np.array([right_outer - left_outer, top_outer - bot_outer])
     exits: np.ndarray = np.array([
-        [[40, 24], [51, 24], [51, 26], [40, 26]]
+        [[right_inner-5, exit_center[1]-1], [right_outer, exit_center[1]-1], 
+         [right_outer, exit_center[1]+1], [right_inner-5, exit_center[1]+1]]
     ])
         
     
@@ -48,7 +55,7 @@ class PersonState:
     
 class SimConstants:
     time_inc = 0.01
-    n_individuals = 200
+    n_individuals = 1000
     individual_radius = 0.5
     collision_rebound = 100
     wall_rebound = 1000
