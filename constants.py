@@ -7,11 +7,10 @@ class Environment:
     left_outer = 0
     right_outer = 50
     
-    wall_thickness = 2
-    bot_inner = bot_outer + wall_thickness
-    top_inner = top_outer - wall_thickness
-    left_inner = left_outer + wall_thickness
-    right_inner = right_outer - wall_thickness
+    bot_inner = bot_outer + 5
+    top_inner = top_outer - 5
+    left_inner = left_outer + 5 
+    right_inner = right_outer - 8
     
     
     # A rectangle is defined as (botleft, botright, topright, topleft)
@@ -20,10 +19,10 @@ class Environment:
     # thus the total shape becomes (n_corners, n_dim)
     # example: rectangular obstacles -> shape=(4, 2)
     walls: list[np.ndarray] = [
-        np.array([[0, 0], [50, 0], [50, 2], [0, 2]]),  # bot
-        np.array([[48, 2], [50, 2], [50, 48], [48, 48]]),  # right
-        np.array([[0, 48], [50, 48], [50, 50], [0, 50]]),  # top
-        np.array([[0, 2], [2, 2], [2, 48], [0, 48]]),  # left
+        np.array([[left_outer, bot_outer], [right_outer, bot_outer], [right_outer, bot_inner], [left_outer, bot_inner]]),  # bot
+        np.array([[right_inner, bot_inner], [right_outer, bot_inner], [right_outer, top_inner], [right_inner, top_inner]]),  # right
+        np.array([[left_outer, top_inner], [right_outer, top_inner], [right_outer, top_outer], [left_outer, top_outer]]),  # top
+        np.array([[left_outer, bot_inner], [left_inner, bot_inner], [left_inner, top_inner], [left_outer, top_inner]]),  # left
         
     ]
         
