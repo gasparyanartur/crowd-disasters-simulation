@@ -2,6 +2,18 @@ import numpy as np
 
 
 class Environment:    
+    bot_outer = 0
+    top_outer = 50
+    left_outer = 0
+    right_outer = 50
+    
+    wall_thickness = 2
+    bot_inner = bot_outer + wall_thickness
+    top_inner = top_outer - wall_thickness
+    left_inner = left_outer + wall_thickness
+    right_inner = right_outer - wall_thickness
+    
+    
     # A rectangle is defined as (botleft, botright, topright, topleft)
     
     # Walls are defined as a set of points,
@@ -37,18 +49,18 @@ class PersonState:
     
 class SimConstants:
     time_inc = 0.01
-    n_individuals = 1000
+    n_individuals = 200
     individual_radius = 0.5
     collision_rebound = 100
     wall_rebound = 1000
-    mass = 10
+    mass = 100
     max_pos = 50, 50
     simulation_time = 10
     damping_constant = 0
     start_margin = 0.1
     social_factor = 50
     v_max = 5
-    individual_force = 10
+    individual_force = 100
     lethal_pressure = 15000
     distance_wall = 4
     r_0 = 1 # the constant for calculate the obstacle force
