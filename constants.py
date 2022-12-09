@@ -40,7 +40,7 @@ class Environment:
         
     # Exits are defined as rectangular,
     # and thus behave in the same way as walls
-    exit_center = np.array([right_outer - left_outer, top_outer - bot_outer])
+    exit_center = np.array([left_outer+(right_outer - left_outer)/2, bot_outer+(top_outer - bot_outer)/2])
     exits: np.ndarray = np.array([
         [[right_inner-5, exit_center[1]-1], [right_outer, exit_center[1]-1], 
          [right_outer, exit_center[1]+1], [right_inner-5, exit_center[1]+1]]
