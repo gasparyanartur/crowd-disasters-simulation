@@ -1,77 +1,88 @@
+from dataclasses import dataclass
 import numpy as np
 
-
-class Environment:    
-    bot_outer = 0
-    top_outer = 80
-    left_outer = 0
-    right_outer = 80
-    
-    thickness_top = 25
-    thickness_bot = 25
-    thickness_left = 10
-    thickness_right = 10
-    
-    bot_inner = bot_outer + thickness_bot
-    top_inner = top_outer - thickness_top
-    left_inner = left_outer + thickness_left
-    right_inner = right_outer - thickness_right
-    
-    
-    # A rectangle is defined as (botleft, botright, topright, topleft)
-    
-    # Walls are defined as a set of points,
-    # thus the total shape becomes (n_corners, n_dim)
-    # example: rectangular obstacles -> shape=(4, 2)
-    walls: list[np.ndarray] = [
-        np.array([[left_outer, bot_outer], [right_outer, bot_outer], [right_outer, bot_inner], [left_outer, bot_inner]]),  # bot
-        np.array([[right_inner, bot_inner], [right_outer, bot_inner], [right_outer, top_inner], [right_inner, top_inner]]),  # right
-        np.array([[left_outer, top_inner], [right_outer, top_inner], [right_outer, top_outer], [left_outer, top_outer]]),  # top
-        np.array([[left_outer, bot_inner], [left_inner, bot_inner], [left_inner, top_inner], [left_outer, top_inner]]),  # left
-        
-    ]
-        
-    wall_face: list[np.ndarray] = [
-        np.array([0, 1]),
-        np.array([-1, 0]),
-        np.array([0, -1]),
-        np.array([1, 0])
-    ]
-        
-    # Exits are defined as rectangular,
-    # and thus behave in the same way as walls
-    exit_center = np.array([left_outer+(right_outer - left_outer)/2, bot_outer+(top_outer - bot_outer)/2])
-    exits: np.ndarray = np.array([
-        [[right_inner-5, exit_center[1]-1], [right_outer, exit_center[1]-1], 
-         [right_outer, exit_center[1]+1], [right_inner-5, exit_center[1]+1]]
-    ])
-        
-    
-class PersonState:
-    living = 0
-    exited = 1
-    dead = 2
-        
-    
 class SimConstants:
-    time_inc = 0.01
-    n_individuals = 1000
-    individual_radius = 0.5
-    collision_rebound = 100
-    wall_rebound = 1000
-    mass = 100
-    max_pos = 50, 50
-    simulation_time = 10
-    damping_constant = 0
-    start_margin = 0.1
-    social_factor = 50
-    v_max = 5
-    individual_force = 100
-    lethal_pressure = 15000
-    distance_wall = 4
-    r_0 = 1 # the constant for calculate the obstacle force
-    n_time_steps = int(simulation_time/time_inc)
-    force_scalar = time_inc/mass
-    shape_2d = (n_individuals, 2)
-    shape_1d = (n_individuals, )
+    def __init__(self, *, time_inc=0.01, n_individuals=500, individual_radius=0.5,
+                          simulation_time=10, v_max=5, distance_wall=4, mass=100,
+                          individual_force=150, lethal_pressure=30000,
+                          A=2000, B=0.08, k1=1200, k2=2400,
+                          width=20, length=60, exit_width=2, exit_length=3):
 
+        self.time_inc = time_inc
+        self.n_individuals = n_individuals
+        self.individual_radius = individual_radius
+        self.mass = mass
+        self.simulation_time = simulation_time
+        self.v_max = v_max
+        self.individual_force = individual_force
+        self.lethal_pressure = lethal_pressure
+        self.distance_wall = distance_wall
+        
+        self.A = A
+        self.B = B
+        self.k1 = k1
+        self.k2 = k2
+
+        self.n_time_steps = int(self.simulation_time/self.time_inc)
+        self.force_scalar = self.time_inc/self.mass
+        self.shape_2d = (self.n_individuals, 2)
+        self.shape_1d = (self.n_individuals, )
+
+        self.width = width
+        self.length = length
+
+        self.exit_width = exit_width
+        self.exit_length = exit_length
+
+        self.bot_outer = 0
+        self.top_outer = 80
+        self.left_outer = 0
+        self.right_outer = 80
+
+        self.thickness_bot = self.thickness_top = (self.top_outer-self.bot_outer-width)//2
+        self.thickness_left = self.thickness_right = (self.right_outer-self.left_outer-length)//2
+
+        self.bot_inner = self.bot_outer + self.thickness_bot
+        self.top_inner = self.top_outer - self.thickness_top
+        self.left_inner = self.left_outer + self.thickness_left
+        self.right_inner = self.right_outer - self.thickness_right
+
+        # A rectangle is defined as (botleft, botright, topright, topleft)
+
+        # Walls are defined as a set of points,
+        # thus the total shape becomes (n_corners, n_dim)
+        # example: rectangular obstacles -> shape=(4, 2)
+        self.walls: list[np.ndarray] = [
+            np.array([
+                [self.left_outer, self.bot_outer], [self.right_outer, self.bot_outer], 
+                [self.right_outer, self.bot_inner], [self.left_outer, self.bot_inner]
+            ]),  # bot
+            np.array([
+                [self.right_inner, self.bot_inner], [self.right_outer, self.bot_inner],
+                [self.right_outer, self.top_inner], [self.right_inner, self.top_inner]
+            ]),  # right
+            np.array([
+                [self.left_outer, self.top_inner], [self.right_outer, self.top_inner], 
+                [self.right_outer, self.top_outer], [self.left_outer, self.top_outer]
+            ]),  # top
+            np.array([
+                [self.left_outer, self.bot_inner], [self.left_inner, self.bot_inner], 
+                [self.left_inner, self.top_inner], [self.left_outer, self.top_inner]
+            ]),  # left
+        ]
+
+        self.center = np.array([
+            self.left_inner+(self.right_inner - self.left_inner)/2,
+            self.bot_inner+(self.top_inner - self.bot_inner)/2
+        ])
+
+        self.exits: np.ndarray = np.array([[
+            [self.right_inner-exit_length//2, self.center[1]-exit_width//2],
+            [self.right_inner+exit_length//2, self.center[1]-exit_width//2], 
+            [self.right_inner+exit_length//2, self.center[1]+exit_width//2],
+            [self.right_inner-exit_length//2, self.center[1]+exit_width//2]
+        ]])
+
+        self.s_living = 0
+        self.s_exited = 1
+        self.s_dead = 2
