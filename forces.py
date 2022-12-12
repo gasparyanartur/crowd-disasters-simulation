@@ -43,8 +43,8 @@ def get_obstacle_forces(sconst, state, dim):
 
 
 def get_forces(sconst, state) -> tuple[np.ndarray, np.ndarray]:
-    soc_forces = np.zeros(shape=sconst.shape_2d)
-    env_forces = np.zeros(shape=sconst.shape_2d)
+    soc_forces = np.zeros(shape=(sconst.n_individuals, 2))
+    env_forces = np.zeros(shape=(sconst.n_individuals, 2))
     active = state.person_states == sconst.s_living
 
     exit = sconst.exits[0]

@@ -1,7 +1,42 @@
-from dataclasses import dataclass
+import dataclasses
 import numpy as np
+import json
 
+
+class Encoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+
+        return json.JSONEncoder.default(self, obj)
+
+
+def constants_to_json(sconst):
+    const_dict = dataclasses.asdict(sconst)
+    return json.dumps(const_dict, cls=Encoder)
+
+
+@dataclasses.dataclass
 class SimConstants:
+    time_inc: float
+    n_individuals: int
+    individual_radius: float
+    mass: float
+    simulation_time: float
+    v_max: float
+    individual_force: float
+    lethal_pressure: float
+    distance_wall: float
+    A: float
+    B: float
+    k1: float
+    k2: float
+    width: float
+    length: float
+    exit_width: float
+    exit_length: float
+
+
     def __init__(self, *, time_inc=0.01, n_individuals=500, individual_radius=0.5,
                           simulation_time=10, v_max=5, distance_wall=4, mass=100,
                           individual_force=150, lethal_pressure=30000,
@@ -25,8 +60,6 @@ class SimConstants:
 
         self.n_time_steps = int(self.simulation_time/self.time_inc)
         self.force_scalar = self.time_inc/self.mass
-        self.shape_2d = (self.n_individuals, 2)
-        self.shape_1d = (self.n_individuals, )
 
         self.width = width
         self.length = length
@@ -86,3 +119,5 @@ class SimConstants:
         self.s_living = 0
         self.s_exited = 1
         self.s_dead = 2
+
+
