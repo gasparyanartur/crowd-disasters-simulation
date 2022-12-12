@@ -11,13 +11,16 @@ class Encoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def constants_to_json(sconst):
-    const_dict = dataclasses.asdict(sconst)
-    return json.dumps(const_dict, cls=Encoder)
-
-
 @dataclasses.dataclass
 class SimConstants:
+    @classmethod
+    def from_file(cls, path: str):
+        with open(path) as f:
+            dump = json.load(f)
+        
+        return json_to_constants(dump)
+
+
     time_inc: float
     n_individuals: int
     individual_radius: float
@@ -36,12 +39,11 @@ class SimConstants:
     exit_width: float
     exit_length: float
 
-
     def __init__(self, *, time_inc=0.01, n_individuals=500, individual_radius=0.5,
-                          simulation_time=10, v_max=5, distance_wall=4, mass=100,
-                          individual_force=150, lethal_pressure=30000,
-                          A=2000, B=0.08, k1=1200, k2=2400,
-                          width=20, length=60, exit_width=2, exit_length=3):
+                 simulation_time=10, v_max=5, distance_wall=4, mass=100,
+                 individual_force=150, lethal_pressure=30000,
+                 A=2000, B=0.08, k1=1200, k2=2400,
+                 width=20, length=60, exit_width=2, exit_length=3, **kwargs):
 
         self.time_inc = time_inc
         self.n_individuals = n_individuals
@@ -52,14 +54,11 @@ class SimConstants:
         self.individual_force = individual_force
         self.lethal_pressure = lethal_pressure
         self.distance_wall = distance_wall
-        
+
         self.A = A
         self.B = B
         self.k1 = k1
         self.k2 = k2
-
-        self.n_time_steps = int(self.simulation_time/self.time_inc)
-        self.force_scalar = self.time_inc/self.mass
 
         self.width = width
         self.length = length
@@ -72,8 +71,16 @@ class SimConstants:
         self.left_outer = 0
         self.right_outer = 80
 
-        self.thickness_bot = self.thickness_top = (self.top_outer-self.bot_outer-width)//2
-        self.thickness_left = self.thickness_right = (self.right_outer-self.left_outer-length)//2
+        self.n_time_steps = int(self.simulation_time/self.time_inc)
+        self.force_scalar = self.time_inc/self.mass
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+        self.thickness_bot = self.thickness_top = (
+            self.top_outer-self.bot_outer-width)//2
+        self.thickness_left = self.thickness_right = (
+            self.right_outer-self.left_outer-length)//2
 
         self.bot_inner = self.bot_outer + self.thickness_bot
         self.top_inner = self.top_outer - self.thickness_top
@@ -87,20 +94,28 @@ class SimConstants:
         # example: rectangular obstacles -> shape=(4, 2)
         self.walls: list[np.ndarray] = [
             np.array([
-                [self.left_outer, self.bot_outer], [self.right_outer, self.bot_outer], 
-                [self.right_outer, self.bot_inner], [self.left_outer, self.bot_inner]
+                [self.left_outer, self.bot_outer], [
+                    self.right_outer, self.bot_outer],
+                [self.right_outer, self.bot_inner], [
+                    self.left_outer, self.bot_inner]
             ]),  # bot
             np.array([
-                [self.right_inner, self.bot_inner], [self.right_outer, self.bot_inner],
-                [self.right_outer, self.top_inner], [self.right_inner, self.top_inner]
+                [self.right_inner, self.bot_inner], [
+                    self.right_outer, self.bot_inner],
+                [self.right_outer, self.top_inner], [
+                    self.right_inner, self.top_inner]
             ]),  # right
             np.array([
-                [self.left_outer, self.top_inner], [self.right_outer, self.top_inner], 
-                [self.right_outer, self.top_outer], [self.left_outer, self.top_outer]
+                [self.left_outer, self.top_inner], [
+                    self.right_outer, self.top_inner],
+                [self.right_outer, self.top_outer], [
+                    self.left_outer, self.top_outer]
             ]),  # top
             np.array([
-                [self.left_outer, self.bot_inner], [self.left_inner, self.bot_inner], 
-                [self.left_inner, self.top_inner], [self.left_outer, self.top_inner]
+                [self.left_outer, self.bot_inner], [
+                    self.left_inner, self.bot_inner],
+                [self.left_inner, self.top_inner], [
+                    self.left_outer, self.top_inner]
             ]),  # left
         ]
 
@@ -111,7 +126,7 @@ class SimConstants:
 
         self.exits: np.ndarray = np.array([[
             [self.right_inner-exit_length//2, self.center[1]-exit_width//2],
-            [self.right_inner+exit_length//2, self.center[1]-exit_width//2], 
+            [self.right_inner+exit_length//2, self.center[1]-exit_width//2],
             [self.right_inner+exit_length//2, self.center[1]+exit_width//2],
             [self.right_inner-exit_length//2, self.center[1]+exit_width//2]
         ]])
@@ -121,3 +136,12 @@ class SimConstants:
         self.s_dead = 2
 
 
+def constants_to_json(sconst):
+    const_dict = dataclasses.asdict(sconst)
+    return json.dumps(const_dict, cls=Encoder)
+
+
+def json_to_constants(dump):
+    values = json.loads(dump)
+    sconst = SimConstants(**values)
+    return sconst
