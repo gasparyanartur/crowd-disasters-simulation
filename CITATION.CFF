@@ -1,0 +1,30 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Crowd Disasters Simulation (CDS)
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Gasparyan
+    family-names: Artur
+    email: gasparyanartur99@gmail.com
+    affiliation: Chalmers University of Technology (CTH)
+  - given-names: Maria Li
+    family-names: López Bautista
+    email: smarialopezb@gmail.com
+    affiliation: Chalmers University of Technology (CTH)
+  - given-names: Nina
+    email: uljanic@chalmers.se
+    family-names: Uljanic
+    affiliation: Chalmers University of Technology (CTH)
+  - email: unfindzhou@gmail.com
+    given-names: Rundong
+    family-names: Zhou
+    affiliation: Chalmers University of Technology (CTH)
+  - family-names: Qiu
+    given-names: Ruiqi
+    email: qiuruiqi1991@gmail.com
+    affiliation: University of Gothenburg (GU)
