@@ -1,1 +1,0 @@
-"{\"time_inc\": 0.01, \"n_individuals\": 200, \"individual_radius\": 0.5, \"mass\": 100, \"simulation_time\": 10, \"v_max\": 5, \"individual_force\": 150, \"lethal_pressure\": 30000, \"distance_wall\": 4, \"A\": 2000, \"B\": 0.08, \"k1\": 1200, \"k2\": 2400, \"width\": 20, \"length\": 60, \"exit_width\": 2, \"exit_length\": 3}"
